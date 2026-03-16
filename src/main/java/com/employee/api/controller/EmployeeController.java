@@ -73,7 +73,7 @@ public class EmployeeController {
         return ResponseEntity.ok("Employee deleted successfully!.");
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("/email/{email}")
     public ResponseEntity<EmployeeDto> getEmployeeByEmail(@PathVariable String email){
         EmployeeDto employeeDto = employeeService.getEmployeeByEmail(email);
         return ResponseEntity.ok(employeeDto);
