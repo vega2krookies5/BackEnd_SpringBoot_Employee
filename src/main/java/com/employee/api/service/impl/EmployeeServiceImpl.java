@@ -68,7 +68,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<EmployeeDto> getAllEmployeesDepartment() {
-        return List.of();
+        List<Employee> employees = employeeRepository.findAllWithDepartment();
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeDto)
+                .toList();
+
     }
 
     @Override
