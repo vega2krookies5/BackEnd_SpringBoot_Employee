@@ -79,9 +79,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDto updateEmployee(Long employeeId, EmployeeDto updatedEmployee) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(
-                        getNotFoundExceptionSupplier(
-                                "Employee is not exists with given id : ",
-                                employeeId)
+                        getNotFoundExceptionSupplier("Employee is not exists with given id : ", employeeId)
                 );
         //setter 호출로 값을 변경
         employee.setFirstName(updatedEmployee.getFirstName());
@@ -89,14 +87,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setEmail(updatedEmployee.getEmail());
 
         Department department = departmentRepository.findById(updatedEmployee.getDepartmentId())
-                .orElseThrow(getNotFoundExceptionSupplier(
+                .orElseThrow(
+                        getNotFoundExceptionSupplier(
                         "Department is not exists with a given id: ", updatedEmployee.getDepartmentId())
                 );
-
+        //Employee와 Department 연결
         employee.setDepartment(department);
 
         Employee updatedEmployeeObj = employeeRepository.save(employee);
-
         return EmployeeMapper.mapToEmployeeDto(updatedEmployeeObj);
     }
 
