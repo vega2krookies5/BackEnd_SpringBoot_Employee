@@ -3,18 +3,19 @@ package com.employee.api.controller;
 import com.employee.api.dto.DepartmentDto;
 import com.employee.api.service.DepartmentService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@AllArgsConstructor
 @RestController
 @RequestMapping("/api/departments")
+@RequiredArgsConstructor
 public class DepartmentController {
 
-    private DepartmentService departmentService;
+    private final DepartmentService departmentService;
 
     // Build Create or Add Department REST API
     @PostMapping
@@ -24,7 +25,7 @@ public class DepartmentController {
     }
 
     // Build Get Department REST API
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<DepartmentDto> getDepartmentById(@PathVariable("id") Long departmentId){
         DepartmentDto departmentDto = departmentService.getDepartmentById(departmentId);
         return ResponseEntity.ok(departmentDto);
@@ -38,7 +39,7 @@ public class DepartmentController {
     }
 
     // Build Update Department REST API
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<DepartmentDto> updateDepartment(@PathVariable("id") Long departmentId,
                                                           @RequestBody DepartmentDto updatedDepartment){
         DepartmentDto departmentDto = departmentService.updateDepartment(departmentId, updatedDepartment);
@@ -46,7 +47,7 @@ public class DepartmentController {
     }
 
     // Build Delete Department REST API
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteDepartment(@PathVariable("id") Long departmentId){
         departmentService.deleteDepartment(departmentId);
         return ResponseEntity.ok("Department deleted successfully!.");
