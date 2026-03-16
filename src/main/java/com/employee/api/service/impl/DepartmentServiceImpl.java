@@ -49,12 +49,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 );
     }
 
-    //public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier)
-    //Supplier의 추상메서드  T get()
-    private static Supplier<ResourceNotFoundException> getNotFoundExceptionSupplier(String msg,
-                                                                                    Long departmentId) {
-        return () -> new ResourceNotFoundException(msg + departmentId, HttpStatus.NOT_FOUND);
-    }
+
 
     @Transactional(readOnly = true)
     @Override
