@@ -83,17 +83,15 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 "Employee is not exists with given id : ",
                                 employeeId)
                 );
-
+        //setter 호출로 값을 변경
         employee.setFirstName(updatedEmployee.getFirstName());
         employee.setLastName(updatedEmployee.getLastName());
         employee.setEmail(updatedEmployee.getEmail());
 
         Department department = departmentRepository.findById(updatedEmployee.getDepartmentId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Department is not exists with id: " + updatedEmployee.getDepartmentId(),
-                                HttpStatus.NOT_FOUND
-                        ));
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with a given id: ", updatedEmployee.getDepartmentId())
+                );
 
         employee.setDepartment(department);
 
