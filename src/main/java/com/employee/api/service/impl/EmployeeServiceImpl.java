@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.employee.api.service.common.CommonService.getNotFoundExceptionSupplier;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -28,10 +30,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = EmployeeMapper.mapToEmployee(employeeDto);
         //Department 의 존재여부를 조회
         Department department = departmentRepository.findById(employeeDto.getDepartmentId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Department is not exists with id: " +
-                                employeeDto.getDepartmentId(),
-                                HttpStatus.NOT_FOUND));
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with id: ",
+                                employeeDto.getDepartmentId())
+                );
         //Employee 와 Department 연결
         employee.setDepartment(department);
         //Employee 등록
