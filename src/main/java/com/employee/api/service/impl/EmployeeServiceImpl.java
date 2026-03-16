@@ -55,9 +55,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         return EmployeeMapper.mapToEmployeeDto(employee);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EmployeeDto> getAllEmployees() {
-        return List.of();
+        List<Employee> employees = employeeRepository.findAll();
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeDto)
+                .toList();
+        //.map((employee) -> EmployeeMapper.mapToEmployeeDto(employee))
+        //.collect(Collectors.toList());
     }
 
     @Override
