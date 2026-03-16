@@ -43,13 +43,16 @@ public class DepartmentServiceImpl implements DepartmentService{
         return departmentRepository.findById(departmentId) //Optional<Department>
                 //.map(department -> DepartmentMapper.mapToDepartmentDto(department))
                 .map(DepartmentMapper::mapToDepartmentDto) //Optional<DepartmentDto)
-                .orElseThrow(getNotFoundExceptionSupplier("Department is not exists with a given id: ", departmentId));
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with a given id: ", departmentId)
+                );
     }
 
-    private static Supplier<ResourceNotFoundException> getNotFoundExceptionSupplier(String x, Long departmentId) {
-        return () -> new ResourceNotFoundException(
-                x + departmentId,
-                HttpStatus.NOT_FOUND);
+    //public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier)
+    //Supplier의 추상메서드  T get()
+    private static Supplier<ResourceNotFoundException> getNotFoundExceptionSupplier(String msg,
+                                                                                    Long departmentId) {
+        return () -> new ResourceNotFoundException(msg + departmentId, HttpStatus.NOT_FOUND);
     }
 
     @Transactional(readOnly = true)
@@ -67,7 +70,8 @@ public class DepartmentServiceImpl implements DepartmentService{
     @Override
     public DepartmentDto updateDepartment(Long departmentId, DepartmentDto updatedDepartment) {
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(getNotFoundExceptionSupplier("Department is not exists with a given id:", departmentId)
+                .orElseThrow(getNotFoundExceptionSupplier(
+                        "Department is not exists with a given id:", departmentId)
                 );
         //setter 호출
         department.setDepartmentName(updatedDepartment.getDepartmentName());
