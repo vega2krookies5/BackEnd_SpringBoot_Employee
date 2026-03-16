@@ -8,8 +8,8 @@ import java.util.function.Supplier;
 public class CommonService {
     //public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier)
     //Supplier의 추상메서드  T get()
-    private static Supplier<ResourceNotFoundException> getNotFoundExceptionSupplier(String msg,
-                                                                                    Long departmentId) {
-        return () -> new ResourceNotFoundException(msg + departmentId, HttpStatus.NOT_FOUND);
+    public static Supplier<ResourceNotFoundException> getNotFoundExceptionSupplier(String msg,
+                                                                                   Long entityId) {
+        return () -> new ResourceNotFoundException(msg + entityId, HttpStatus.NOT_FOUND);
     }
 }
