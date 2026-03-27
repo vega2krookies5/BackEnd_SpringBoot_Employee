@@ -1,6 +1,7 @@
 package com.employee.api.exception.advice;
 
 import com.employee.api.exception.ResourceNotFoundException;
+import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,6 +57,20 @@ public class DefaultExceptionAdvice {
         result.put("httpStatus", HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+    }
+
+    // JWT 토큰 파싱/검증 실패 → 401
+    // JwtAuthenticationFilter에서 HandlerExceptionResolver를 통해 위임됨
+    // ExpiredJwtException, MalformedJwtException, SignatureException, UnsupportedJwtException 모두 처리
+    @ExceptionHandler(JwtException.class)
+    protected ResponseEntity<ErrorObject> handleJwtException(JwtException e) {
+        ErrorObject errorObject = new ErrorObject();
+        errorObject.setStatusCode(HttpStatus.UNAUTHORIZED.value());
+        errorObject.setMessage("Invalid or expired JWT token: " + e.getMessage());
+
+        log.warn("JWT validation failed: {}", e.getMessage());
+
+        return new ResponseEntity<>(errorObject, HttpStatus.UNAUTHORIZED);
     }
 
     // 인증 실패 (토큰 없음, 잘못된 자격증명) → 401
