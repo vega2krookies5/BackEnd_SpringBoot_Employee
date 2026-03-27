@@ -2,10 +2,12 @@ package com.employee.api.auth.config;
 
 import com.employee.api.auth.filter.JwtAuthenticationFilter;
 import com.employee.api.auth.userinfo.UserInfoUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -41,6 +43,24 @@ public class SecurityConfig {
                 })
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        // authenticationEntryPoint: 토큰 없이 인증 필요 경로 접근 시 호출 → 401 JSON 반환
+                        // 기본값은 HTML 에러 페이지이므로 REST API용 JSON 응답으로 교체
+                        .authenticationEntryPoint((request, response, e) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            response.getWriter().write(
+                                    "{\"error\":\"Unauthorized\",\"message\":\"" + e.getMessage() + "\"}");
+                        })
+                        // accessDeniedHandler: 인증은 됐으나 권한(ROLE) 부족 시 호출 → 403 JSON 반환
+                        // 필터 레벨 AccessDeniedException 처리 (컨트롤러 레벨은 DefaultExceptionAdvice 처리)
+                        .accessDeniedHandler((request, response, e) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            response.getWriter().write(
+                                    "{\"error\":\"Forbidden\",\"message\":\"" + e.getMessage() + "\"}");
+                        })
+                )
                 // DB 기반 인증 프로바이더 등록
                 .authenticationProvider(authenticationProvider())
                 // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 삽입

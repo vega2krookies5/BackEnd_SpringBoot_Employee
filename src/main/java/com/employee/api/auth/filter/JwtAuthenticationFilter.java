@@ -73,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // username이 추출됐고 아직 SecurityContext에 인증 정보가 없는 경우에만 처리
+        // username이 추출됐고 아직 SecurityContext에 Authentication(인증) 정보가 없는 경우에만 처리
         // (이미 인증된 요청을 중복 처리하지 않기 위한 조건)
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // DB에서 사용자 정보(권한 포함) 로드 — 토큰에 roles가 없으므로 매 요청마다 DB 조회
