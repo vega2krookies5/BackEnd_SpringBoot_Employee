@@ -1,39 +1,60 @@
-package com.employee.api.config;
+package net.restapi.emp.config;
 
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.List;
 
-//CORS(Cross Origin Resource Sharing)
+/**
+ * CORS 설정 (prod 프로파일)
+ *
+ * CorsConfigurationSource 빈을 등록하면 SecurityConfig의
+ * .cors(Customizer.withDefaults())가 이 빈을 자동으로 참조합니다.
+ *
+ * 기존 FilterRegistrationBean 방식의 문제:
+ *   - FilterRegistrationBean order(0)은 Spring Security(-100)보다 늦게 실행
+ *   - preflight(OPTIONS) 요청이 Security 필터에서 먼저 차단됨
+ * 해결:
+ *   - CorsConfigurationSource 빈 등록 → Security 필터 체인 내부에서 CORS 처리
+ */
 @Configuration
+@Profile("prod")
 public class CorsConfig {
 
     @Bean
-    public FilterRegistrationBean<?> corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // 명시적인 도메인만 허용
-        //configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:80","http://localhost"));
+
+        // 모든 출처 허용 (운영 환경에서는 실제 클라이언트 도메인으로 제한 권장)
         configuration.setAllowedOriginPatterns(List.of("*"));
-        // Credentials은 필요한 경우에만
+
+        // 자격증명(쿠키, Authorization 헤더) 포함 요청 허용
         configuration.setAllowCredentials(true);
-        // 필요한 헤더만 허용
-        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
-        // 필요한 HTT 메소드만 허용
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
+
+        // 허용할 요청 헤더 — Authorization(JWT 토큰) 반드시 포함
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Origin", "Content-Type", "Accept",
+                "Authorization",
+                "Access-Control-Allow-Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
+        ));
+
+        // 허용할 HTTP 메서드 — OPTIONS는 preflight 요청 처리에 필수
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+        ));
+
+        // preflight 응답 캐시 시간 (초) — 동일 경로의 반복 preflight 요청 감소
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // 특정 경로에만 적용 (예: "/api/**")
-        source.registerCorsConfiguration("/api/**", configuration);
-
-        FilterRegistrationBean<?> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(0);
-        return bean;
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
-
 }
